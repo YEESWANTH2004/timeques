@@ -1,0 +1,837 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Time Complexity — Practice Problems</title>
+<link href="https://fonts.googleapis.com/css2?family=Space+Mono:ital,wght@0,400;0,700;1,400&family=Syne:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{
+  --bg:#0a0a0f;
+  --surface:#11111c;
+  --card:#16162a;
+  --card2:#1c1c30;
+  --border:#252540;
+  --accent:#7c6aff;
+  --accent2:#ff6a9b;
+  --green:#00e5a0;
+  --yellow:#ffd44d;
+  --red:#ff4466;
+  --blue:#4ab4ff;
+  --orange:#ff8c42;
+  --text:#eaeaf8;
+  --muted:#5a5a80;
+  --font:'Syne',sans-serif;
+  --mono:'Space Mono',monospace;
+}
+html{scroll-behavior:smooth}
+body{font-family:var(--font);background:var(--bg);color:var(--text);min-height:100vh}
+
+/* ── TOP BAR ── */
+.topbar{
+  position:sticky;top:0;z-index:50;
+  background:rgba(10,10,15,.92);backdrop-filter:blur(18px);
+  border-bottom:1px solid var(--border);
+  padding:.9rem 2rem;
+  display:flex;align-items:center;justify-content:space-between;gap:1rem;flex-wrap:wrap;
+}
+.topbar-left{display:flex;align-items:center;gap:1rem}
+.logo{font-size:1rem;font-weight:800;color:var(--accent);letter-spacing:-.02em}
+.logo span{color:var(--accent2)}
+.badge-count{
+  font-family:var(--mono);font-size:.72rem;font-weight:700;
+  background:rgba(124,106,255,.15);border:1px solid rgba(124,106,255,.35);
+  color:var(--accent);padding:.25rem .75rem;border-radius:20px;
+}
+.score-pill{
+  font-family:var(--mono);font-size:.78rem;font-weight:700;
+  background:rgba(0,229,160,.1);border:1px solid rgba(0,229,160,.3);
+  color:var(--green);padding:.3rem .9rem;border-radius:20px;
+  transition:all .3s;
+}
+.progress-wrap{width:100%;height:4px;background:var(--border);border-radius:2px;margin-top:.6rem}
+.progress-fill{height:100%;border-radius:2px;background:linear-gradient(90deg,var(--accent),var(--accent2));transition:width .5s ease;width:0%}
+
+/* ── LAYOUT ── */
+.page{max-width:900px;margin:0 auto;padding:2.5rem 1.5rem 5rem}
+.page-title{font-size:clamp(1.8rem,4vw,2.6rem);font-weight:800;letter-spacing:-.03em;margin-bottom:.4rem}
+.page-sub{font-family:var(--mono);font-size:.82rem;color:var(--muted);margin-bottom:2.5rem}
+
+/* ── PROBLEM CARD ── */
+.prob{
+  background:var(--card);border:1px solid var(--border);
+  border-radius:16px;margin-bottom:1.5rem;overflow:hidden;
+  transition:border-color .3s,box-shadow .3s;
+}
+.prob.answered{border-color:rgba(124,106,255,.3);box-shadow:0 4px 30px rgba(124,106,255,.06)}
+.prob.answered.all-correct{border-color:rgba(0,229,160,.35);box-shadow:0 4px 30px rgba(0,229,160,.07)}
+
+.prob-header{
+  padding:1.25rem 1.5rem;
+  display:flex;align-items:flex-start;gap:1rem;
+  border-bottom:1px solid var(--border);
+  background:var(--card2);
+}
+.prob-num{
+  font-family:var(--mono);font-size:.72rem;font-weight:700;letter-spacing:.1em;
+  color:var(--accent2);background:rgba(255,106,155,.1);
+  border:1px solid rgba(255,106,155,.25);
+  padding:.3rem .75rem;border-radius:6px;white-space:nowrap;flex-shrink:0;
+  margin-top:.1rem;
+}
+.prob-title{font-size:1.05rem;font-weight:700;line-height:1.45;color:var(--text)}
+.prob-tags{display:flex;flex-wrap:wrap;gap:.4rem;margin-top:.5rem}
+.tag{font-family:var(--mono);font-size:.65rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;padding:.18rem .55rem;border-radius:4px}
+.tag-loop{background:rgba(74,180,255,.12);color:var(--blue);border:1px solid rgba(74,180,255,.25)}
+.tag-array{background:rgba(255,140,66,.12);color:var(--orange);border:1px solid rgba(255,140,66,.25)}
+.tag-nested{background:rgba(255,68,102,.12);color:var(--red);border:1px solid rgba(255,68,102,.25)}
+.tag-recur{background:rgba(124,106,255,.12);color:var(--accent);border:1px solid rgba(124,106,255,.25)}
+.tag-math{background:rgba(0,229,160,.12);color:var(--green);border:1px solid rgba(0,229,160,.25)}
+.tag-string{background:rgba(255,212,77,.12);color:var(--yellow);border:1px solid rgba(255,212,77,.25)}
+
+.prob-body{padding:1.5rem}
+
+/* ── CODE ── */
+.code-block{
+  background:#0b0b18;border:1px solid var(--border);border-radius:10px;
+  padding:1.1rem 1.25rem;font-family:var(--mono);font-size:.8rem;
+  line-height:1.95;overflow-x:auto;margin-bottom:1.25rem;
+  position:relative;
+}
+.code-block pre{white-space:pre}
+.ln{color:#2a2a4a;user-select:none;margin-right:.9rem;display:inline-block;min-width:20px;text-align:right}
+.kw{color:#c792ea}.fn{color:#82aaff}.cm{color:#3d5060;font-style:italic}
+.nm{color:#f78c6c}.str{color:#c3e88d}.tp{color:#ffcb6b}
+
+/* ── QUESTION ── */
+.q-label{font-family:var(--mono);font-size:.68rem;letter-spacing:.1em;color:var(--muted);text-transform:uppercase;margin-bottom:.5rem}
+.q-text{font-size:.95rem;font-weight:700;line-height:1.5;margin-bottom:1rem;color:var(--text)}
+
+/* ── OPTIONS ── */
+.options{display:flex;flex-direction:column;gap:.55rem;margin-bottom:.5rem}
+.opt{
+  display:flex;align-items:center;gap:.75rem;
+  padding:.8rem 1.1rem;
+  background:var(--surface);border:2px solid var(--border);
+  border-radius:9px;cursor:pointer;
+  font-size:.88rem;font-weight:600;
+  transition:all .18s;color:var(--text);
+  text-align:left;line-height:1.4;
+}
+.opt:hover:not(.locked){
+  border-color:var(--accent);
+  background:rgba(124,106,255,.09);
+  transform:translateX(5px);
+}
+.opt-key{
+  font-family:var(--mono);font-size:.7rem;font-weight:700;
+  width:24px;height:24px;border-radius:5px;
+  display:flex;align-items:center;justify-content:center;flex-shrink:0;
+  background:var(--border);color:var(--muted);transition:all .18s;
+}
+.opt.correct{border-color:var(--green);background:rgba(0,229,160,.08)}
+.opt.correct .opt-key{background:var(--green);color:#000}
+.opt.wrong{border-color:var(--red);background:rgba(255,68,102,.08)}
+.opt.wrong .opt-key{background:var(--red);color:#fff}
+.opt.dim{opacity:.38}
+.opt.locked{cursor:not-allowed}
+
+/* ── EXPLANATION ── */
+.expl{
+  display:none;margin-top:1.1rem;
+  padding:1.25rem;border-radius:10px;
+  animation:fadeUp .3s ease;
+}
+.expl.show{display:block}
+.expl.ok{background:rgba(0,229,160,.06);border:1px solid rgba(0,229,160,.22)}
+.expl.no{background:rgba(255,68,102,.06);border:1px solid rgba(255,68,102,.22)}
+@keyframes fadeUp{from{opacity:0;transform:translateY(-8px)}to{opacity:1;transform:translateY(0)}}
+.expl-head{font-family:var(--mono);font-size:.72rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;margin-bottom:.8rem}
+.expl.ok .expl-head{color:var(--green)}
+.expl.no .expl-head{color:var(--red)}
+.expl-body{font-size:.87rem;line-height:1.75;color:var(--text)}
+.expl-body p{margin-bottom:.55rem}
+.expl-body p:last-child{margin-bottom:0}
+.expl-body strong{color:var(--yellow)}
+.expl-body code{font-family:var(--mono);font-size:.78rem;color:var(--accent);background:rgba(124,106,255,.12);padding:.1rem .4rem;border-radius:4px}
+.step-list{list-style:none;padding:0;margin:.55rem 0}
+.step-list li{padding:.35rem 0 .35rem 1.4rem;position:relative;font-size:.86rem;line-height:1.6;border-bottom:1px solid rgba(255,255,255,.04)}
+.step-list li:last-child{border-bottom:none}
+.step-list li::before{content:'▸';position:absolute;left:0;color:var(--accent);font-weight:700}
+.answer-box{
+  display:inline-block;margin-top:.6rem;
+  font-family:var(--mono);font-size:1rem;font-weight:700;
+  padding:.4rem 1.1rem;border-radius:7px;
+  background:rgba(124,106,255,.15);border:1px solid rgba(124,106,255,.35);color:var(--accent);
+}
+
+/* ── SUMMARY PANEL ── */
+.summary{
+  display:none;margin-top:2rem;
+  background:var(--card);border:1px solid rgba(124,106,255,.3);
+  border-radius:16px;padding:2rem;text-align:center;
+  animation:fadeUp .5s ease;
+}
+.summary.show{display:block}
+.summary-emoji{font-size:3.5rem;margin-bottom:1rem}
+.summary-title{font-size:1.6rem;font-weight:800;margin-bottom:.4rem}
+.summary-sub{font-family:var(--mono);font-size:.82rem;color:var(--muted);margin-bottom:1.5rem}
+.score-display{
+  font-family:var(--mono);font-size:3rem;font-weight:700;
+  color:var(--accent);margin-bottom:.3rem;
+}
+.score-label{font-family:var(--mono);font-size:.78rem;color:var(--muted);margin-bottom:1.5rem}
+.grade-bar{display:flex;justify-content:center;gap:.5rem;flex-wrap:wrap;margin-bottom:1.5rem}
+.grade-pill{font-family:var(--mono);font-size:.75rem;font-weight:700;padding:.4rem 1rem;border-radius:20px}
+.retry-btn{
+  padding:.75rem 2rem;background:var(--accent);color:#fff;
+  border:none;border-radius:8px;font-family:var(--mono);font-size:.85rem;
+  font-weight:700;cursor:pointer;transition:all .2s;letter-spacing:.05em;
+}
+.retry-btn:hover{transform:translateY(-2px);box-shadow:0 6px 20px rgba(124,106,255,.4)}
+
+/* ── DIVIDER ── */
+.divider{height:1px;background:var(--border);margin:1rem 0}
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div style="width:100%">
+    <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:.75rem">
+      <div class="topbar-left">
+        <div class="logo">⚡ Time<span>Complexity</span></div>
+        <div class="badge-count">10 Practice Problems</div>
+      </div>
+      <div class="score-pill">Score: <span id="scoreDisplay">0 / 10</span></div>
+    </div>
+    <div class="progress-wrap"><div class="progress-fill" id="progressFill"></div></div>
+  </div>
+</div>
+
+<div class="page">
+  <h1 class="page-title">Practice Problems</h1>
+  <p class="page-sub">// Medium difficulty · Arrays + Loops combined · Click an option to reveal the answer</p>
+
+  <!-- ════════════════════ PROBLEM 1 ════════════════════ -->
+  <div class="prob" id="p1">
+    <div class="prob-header">
+      <div class="prob-num">Q 01</div>
+      <div>
+        <div class="prob-title">Two-pointer scan with early exit on a sorted array</div>
+        <div class="prob-tags">
+          <span class="tag tag-array">array</span>
+          <span class="tag tag-loop">loop</span>
+          <span class="tag tag-math">two-pointer</span>
+        </div>
+      </div>
+    </div>
+    <div class="prob-body">
+      <div class="code-block"><pre><span class="kw">int</span> <span class="fn">twoSum</span>(<span class="kw">int</span>[] arr, <span class="kw">int</span> target) {   <span class="cm">// arr is sorted</span>
+    <span class="kw">int</span> left = <span class="nm">0</span>, right = arr.length - <span class="nm">1</span>;
+    <span class="kw">while</span> (left &lt; right) {
+        <span class="kw">int</span> sum = arr[left] + arr[right];
+        <span class="kw">if</span> (sum == target)  <span class="kw">return</span> <span class="nm">1</span>;
+        <span class="kw">else if</span> (sum &lt; target) left++;
+        <span class="kw">else</span> right--;
+    }
+    <span class="kw">return</span> -<span class="nm">1</span>;
+}</pre></div>
+      <div class="q-label">What is the time complexity?</div>
+      <div class="options" data-correct="B" data-pid="1">
+        <div class="opt" data-val="A"><span class="opt-key">A</span>O(n²)</div>
+        <div class="opt" data-val="B"><span class="opt-key">B</span>O(n)</div>
+        <div class="opt" data-val="C"><span class="opt-key">C</span>O(log n)</div>
+        <div class="opt" data-val="D"><span class="opt-key">D</span>O(n log n)</div>
+      </div>
+      <div class="expl">
+        <div class="expl-head"></div>
+        <div class="expl-body">
+          <p>Even though there are <strong>two pointers</strong>, they never cross — each step either moves <code>left</code> right or <code>right</code> left. In total, left + right together make at most <strong>n moves</strong>.</p>
+          <ul class="step-list">
+            <li>At every iteration, one pointer advances → at most n total iterations</li>
+            <li>No nested looping — both pointers share the same while loop</li>
+            <li>Two-pointer on a sorted array is always <strong>O(n)</strong>, not O(n²)</li>
+          </ul>
+          <p><strong>Trick:</strong> Two variables inside ONE loop ≠ nested loop. Count how many total steps the pointers together take.</p>
+          <div class="answer-box">Answer: O(n)</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ════════════════════ PROBLEM 2 ════════════════════ -->
+  <div class="prob" id="p2">
+    <div class="prob-header">
+      <div class="prob-num">Q 02</div>
+      <div>
+        <div class="prob-title">Find all pairs in array whose sum equals target (no sorting)</div>
+        <div class="prob-tags">
+          <span class="tag tag-array">array</span>
+          <span class="tag tag-nested">nested loop</span>
+        </div>
+      </div>
+    </div>
+    <div class="prob-body">
+      <div class="code-block"><pre><span class="kw">void</span> <span class="fn">findPairs</span>(<span class="kw">int</span>[] arr, <span class="kw">int</span> target) {
+    <span class="kw">int</span> n = arr.length;
+    <span class="kw">for</span> (<span class="kw">int</span> i = <span class="nm">0</span>; i &lt; n; i++) {
+        <span class="kw">for</span> (<span class="kw">int</span> j = i + <span class="nm">1</span>; j &lt; n; j++) {
+            <span class="kw">if</span> (arr[i] + arr[j] == target) {
+                System.out.println(arr[i] + <span class="str">" + "</span> + arr[j]);
+            }
+        }
+    }
+}</pre></div>
+      <div class="q-label">What is the time complexity?</div>
+      <div class="options" data-correct="C" data-pid="2">
+        <div class="opt" data-val="A"><span class="opt-key">A</span>O(n)</div>
+        <div class="opt" data-val="B"><span class="opt-key">B</span>O(n log n)</div>
+        <div class="opt" data-val="C"><span class="opt-key">C</span>O(n²)</div>
+        <div class="opt" data-val="D"><span class="opt-key">D</span>O(2n)</div>
+      </div>
+      <div class="expl">
+        <div class="expl-head"></div>
+        <div class="expl-body">
+          <p>The inner loop starts at <code>j = i+1</code>, not 0. People often think this halves the work and changes the complexity — it doesn't!</p>
+          <ul class="step-list">
+            <li>When i=0: inner runs n-1 times</li>
+            <li>When i=1: inner runs n-2 times</li>
+            <li>Total = (n-1)+(n-2)+...+1 = <strong>n(n-1)/2</strong></li>
+            <li>n(n-1)/2 → drop constant ½ and lower term → <strong>O(n²)</strong></li>
+          </ul>
+          <p><strong>Trick:</strong> Any double nested loop comparing all pairs, even with <code>j = i+1</code>, is <strong>O(n²)</strong>. The ½ constant gets dropped.</p>
+          <p><strong>Better approach:</strong> Use a HashSet → O(n) time!</p>
+          <div class="answer-box">Answer: O(n²)</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ════════════════════ PROBLEM 3 ════════════════════ -->
+  <div class="prob" id="p3">
+    <div class="prob-header">
+      <div class="prob-num">Q 03</div>
+      <div>
+        <div class="prob-title">Binary search inside a loop over array elements</div>
+        <div class="prob-tags">
+          <span class="tag tag-array">array</span>
+          <span class="tag tag-loop">loop</span>
+          <span class="tag tag-nested">nested</span>
+          <span class="tag tag-math">binary search</span>
+        </div>
+      </div>
+    </div>
+    <div class="prob-body">
+      <div class="code-block"><pre><span class="kw">int</span> <span class="fn">countTargets</span>(<span class="kw">int</span>[] arr, <span class="kw">int</span>[] queries) {
+    <span class="kw">int</span> count = <span class="nm">0</span>;
+    <span class="cm">// arr is sorted, arr.length = n</span>
+    <span class="cm">// queries.length = m</span>
+    <span class="kw">for</span> (<span class="kw">int</span> q : queries) {           <span class="cm">// runs m times</span>
+        <span class="kw">int</span> l = <span class="nm">0</span>, r = arr.length - <span class="nm">1</span>;
+        <span class="kw">while</span> (l &lt;= r) {              <span class="cm">// binary search: O(log n)</span>
+            <span class="kw">int</span> mid = (l + r) / <span class="nm">2</span>;
+            <span class="kw">if</span> (arr[mid] == q) { count++; <span class="kw">break</span>; }
+            <span class="kw">if</span> (arr[mid] &lt; q) l = mid + <span class="nm">1</span>;
+            <span class="kw">else</span> r = mid - <span class="nm">1</span>;
+        }
+    }
+    <span class="kw">return</span> count;
+}</pre></div>
+      <div class="q-label">What is the time complexity? (n = arr size, m = queries size)</div>
+      <div class="options" data-correct="D" data-pid="3">
+        <div class="opt" data-val="A"><span class="opt-key">A</span>O(n log n)</div>
+        <div class="opt" data-val="B"><span class="opt-key">B</span>O(m + n)</div>
+        <div class="opt" data-val="C"><span class="opt-key">C</span>O(m · n)</div>
+        <div class="opt" data-val="D"><span class="opt-key">D</span>O(m log n)</div>
+      </div>
+      <div class="expl">
+        <div class="expl-head"></div>
+        <div class="expl-body">
+          <p>Two distinct sizes appear: <strong>m</strong> (queries) and <strong>n</strong> (array). Outer loop runs m times, inner binary search runs log n times.</p>
+          <ul class="step-list">
+            <li>Outer loop: m iterations (one per query)</li>
+            <li>Inner while: O(log n) — standard binary search on array of size n</li>
+            <li>Nested → multiply: m × log n = <strong>O(m log n)</strong></li>
+          </ul>
+          <p><strong>Trick:</strong> When two different input sizes exist, keep both in the answer. Don't collapse m and n into a single variable unless they're equal.</p>
+          <div class="answer-box">Answer: O(m log n)</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ════════════════════ PROBLEM 4 ════════════════════ -->
+  <div class="prob" id="p4">
+    <div class="prob-header">
+      <div class="prob-num">Q 04</div>
+      <div>
+        <div class="prob-title">Prefix sum build + range query</div>
+        <div class="prob-tags">
+          <span class="tag tag-array">array</span>
+          <span class="tag tag-loop">loop</span>
+          <span class="tag tag-math">prefix sum</span>
+        </div>
+      </div>
+    </div>
+    <div class="prob-body">
+      <div class="code-block"><pre><span class="kw">int</span>[] prefix;
+
+<span class="kw">void</span> <span class="fn">build</span>(<span class="kw">int</span>[] arr) {          <span class="cm">// called once</span>
+    prefix = <span class="kw">new int</span>[arr.length + <span class="nm">1</span>];
+    <span class="kw">for</span> (<span class="kw">int</span> i = <span class="nm">0</span>; i &lt; arr.length; i++)
+        prefix[i+<span class="nm">1</span>] = prefix[i] + arr[i];  <span class="cm">// O(n)</span>
+}
+
+<span class="kw">int</span> <span class="fn">query</span>(<span class="kw">int</span> l, <span class="kw">int</span> r) {         <span class="cm">// called q times</span>
+    <span class="kw">return</span> prefix[r+<span class="nm">1</span>] - prefix[l]; <span class="cm">// O(1) each</span>
+}
+<span class="cm">// Total: build once, then q queries</span></pre></div>
+      <div class="q-label">What is the TOTAL time complexity for build + q queries?</div>
+      <div class="options" data-correct="A" data-pid="4">
+        <div class="opt" data-val="A"><span class="opt-key">A</span>O(n + q)</div>
+        <div class="opt" data-val="B"><span class="opt-key">B</span>O(n · q)</div>
+        <div class="opt" data-val="C"><span class="opt-key">C</span>O(n²)</div>
+        <div class="opt" data-val="D"><span class="opt-key">D</span>O(q log n)</div>
+      </div>
+      <div class="expl">
+        <div class="expl-head"></div>
+        <div class="expl-body">
+          <p>The whole point of prefix sums is to trade build time for O(1) queries.</p>
+          <ul class="step-list">
+            <li><code>build()</code> runs one loop of n steps → <strong>O(n)</strong></li>
+            <li><code>query()</code> is a single subtraction → <strong>O(1)</strong> per call</li>
+            <li>q queries × O(1) each = O(q)</li>
+            <li>Total (sequential): O(n) + O(q) = <strong>O(n + q)</strong></li>
+          </ul>
+          <p><strong>Contrast with naive approach:</strong> Without prefix sums, each range query would loop through the subarray → O(n) per query → O(nq) total. Prefix sums are a massive win!</p>
+          <div class="answer-box">Answer: O(n + q)</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ════════════════════ PROBLEM 5 ════════════════════ -->
+  <div class="prob" id="p5">
+    <div class="prob-header">
+      <div class="prob-num">Q 05</div>
+      <div>
+        <div class="prob-title">Triple nested loop — counting triplets</div>
+        <div class="prob-tags">
+          <span class="tag tag-array">array</span>
+          <span class="tag tag-nested">nested loop</span>
+        </div>
+      </div>
+    </div>
+    <div class="prob-body">
+      <div class="code-block"><pre><span class="kw">int</span> <span class="fn">countTriplets</span>(<span class="kw">int</span>[] arr) {
+    <span class="kw">int</span> n = arr.length, count = <span class="nm">0</span>;
+    <span class="kw">for</span> (<span class="kw">int</span> i = <span class="nm">0</span>; i &lt; n; i++) {
+        <span class="kw">for</span> (<span class="kw">int</span> j = i + <span class="nm">1</span>; j &lt; n; j++) {
+            <span class="kw">for</span> (<span class="kw">int</span> k = j + <span class="nm">1</span>; k &lt; n; k++) {
+                <span class="kw">if</span> (arr[i]+arr[j]+arr[k] == <span class="nm">0</span>)
+                    count++;
+            }
+        }
+    }
+    <span class="kw">return</span> count;
+}</pre></div>
+      <div class="q-label">What is the time complexity?</div>
+      <div class="options" data-correct="B" data-pid="5">
+        <div class="opt" data-val="A"><span class="opt-key">A</span>O(n²)</div>
+        <div class="opt" data-val="B"><span class="opt-key">B</span>O(n³)</div>
+        <div class="opt" data-val="C"><span class="opt-key">C</span>O(n! )</div>
+        <div class="opt" data-val="D"><span class="opt-key">D</span>O(3n)</div>
+      </div>
+      <div class="expl">
+        <div class="expl-head"></div>
+        <div class="expl-body">
+          <p>Three nested loops, each bounded by n (even though they start at i+1, j+1 etc.).</p>
+          <ul class="step-list">
+            <li>Total combinations = C(n,3) = n(n-1)(n-2)/6</li>
+            <li>Drop constants and lower-order terms: <strong>O(n³)</strong></li>
+            <li>Starting at i+1, j+1 only halves/thirds the work — constants that disappear in Big O</li>
+          </ul>
+          <p><strong>Rule:</strong> k nested loops each bounded by n → <strong>O(nᵏ)</strong>. Three loops = O(n³), regardless of whether inner bounds shift.</p>
+          <p><strong>Better:</strong> Sort array + two-pointer for each i → O(n²). Or use a HashSet → O(n²).</p>
+          <div class="answer-box">Answer: O(n³)</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ════════════════════ PROBLEM 6 ════════════════════ -->
+  <div class="prob" id="p6">
+    <div class="prob-header">
+      <div class="prob-num">Q 06</div>
+      <div>
+        <div class="prob-title">Loop with logarithmic inner shrink — matrix row search</div>
+        <div class="prob-tags">
+          <span class="tag tag-array">array</span>
+          <span class="tag tag-loop">loop</span>
+          <span class="tag tag-math">logarithmic inner</span>
+        </div>
+      </div>
+    </div>
+    <div class="prob-body">
+      <div class="code-block"><pre><span class="kw">void</span> <span class="fn">process</span>(<span class="kw">int</span>[][] matrix, <span class="kw">int</span> n) {
+    <span class="cm">// matrix is n×n</span>
+    <span class="kw">for</span> (<span class="kw">int</span> row = <span class="nm">0</span>; row &lt; n; row++) {     <span class="cm">// n rows</span>
+        <span class="kw">int</span> lo = <span class="nm">0</span>, hi = n - <span class="nm">1</span>;
+        <span class="kw">while</span> (lo &lt;= hi) {                    <span class="cm">// binary search on row</span>
+            <span class="kw">int</span> mid = (lo + hi) / <span class="nm">2</span>;
+            <span class="kw">if</span> (matrix[row][mid] == <span class="nm">0</span>) { hi = mid - <span class="nm">1</span>; }
+            <span class="kw">else</span>                           { lo = mid + <span class="nm">1</span>; }
+        }
+        System.out.println(<span class="str">"zeros in row: "</span> + lo);
+    }
+}</pre></div>
+      <div class="q-label">What is the time complexity?</div>
+      <div class="options" data-correct="C" data-pid="6">
+        <div class="opt" data-val="A"><span class="opt-key">A</span>O(n²)</div>
+        <div class="opt" data-val="B"><span class="opt-key">B</span>O(n)</div>
+        <div class="opt" data-val="C"><span class="opt-key">C</span>O(n log n)</div>
+        <div class="opt" data-val="D"><span class="opt-key">D</span>O(log n)</div>
+      </div>
+      <div class="expl">
+        <div class="expl-head"></div>
+        <div class="expl-body">
+          <p>Outer loop runs over n rows. Inside each row, a binary search runs on n columns.</p>
+          <ul class="step-list">
+            <li>Outer for-loop: <strong>n iterations</strong></li>
+            <li>Inner while (binary search on row of size n): <strong>O(log n)</strong></li>
+            <li>Nested → multiply: n × log n = <strong>O(n log n)</strong></li>
+          </ul>
+          <p><strong>Contrast with O(n²):</strong> If the inner loop were a linear scan (lo++ each time), it would be O(n²). Binary search cuts it to O(n log n).</p>
+          <p><strong>Trick:</strong> Outer O(n) × inner O(log n) = O(n log n). Same pattern as Merge Sort!</p>
+          <div class="answer-box">Answer: O(n log n)</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ════════════════════ PROBLEM 7 ════════════════════ -->
+  <div class="prob" id="p7">
+    <div class="prob-header">
+      <div class="prob-num">Q 07</div>
+      <div>
+        <div class="prob-title">Sliding window — max subarray sum of size k</div>
+        <div class="prob-tags">
+          <span class="tag tag-array">array</span>
+          <span class="tag tag-loop">loop</span>
+          <span class="tag tag-math">sliding window</span>
+        </div>
+      </div>
+    </div>
+    <div class="prob-body">
+      <div class="code-block"><pre><span class="kw">int</span> <span class="fn">maxSubarraySum</span>(<span class="kw">int</span>[] arr, <span class="kw">int</span> k) {
+    <span class="kw">int</span> n = arr.length;
+    <span class="kw">int</span> windowSum = <span class="nm">0</span>, maxSum = <span class="nm">0</span>;
+
+    <span class="kw">for</span> (<span class="kw">int</span> i = <span class="nm">0</span>; i &lt; k; i++)         <span class="cm">// first window: O(k)</span>
+        windowSum += arr[i];
+    maxSum = windowSum;
+
+    <span class="kw">for</span> (<span class="kw">int</span> i = k; i &lt; n; i++) {        <span class="cm">// slide: O(n-k)</span>
+        windowSum += arr[i] - arr[i - k];
+        maxSum = Math.max(maxSum, windowSum);
+    }
+    <span class="kw">return</span> maxSum;
+}</pre></div>
+      <div class="q-label">What is the time complexity?</div>
+      <div class="options" data-correct="A" data-pid="7">
+        <div class="opt" data-val="A"><span class="opt-key">A</span>O(n)</div>
+        <div class="opt" data-val="B"><span class="opt-key">B</span>O(n · k)</div>
+        <div class="opt" data-val="C"><span class="opt-key">C</span>O(k)</div>
+        <div class="opt" data-val="D"><span class="opt-key">D</span>O(n²)</div>
+      </div>
+      <div class="expl">
+        <div class="expl-head"></div>
+        <div class="expl-body">
+          <p>Classic sliding window — two sequential loops, neither nested.</p>
+          <ul class="step-list">
+            <li>First loop builds initial window: O(k)</li>
+            <li>Second loop slides window across remaining elements: O(n - k)</li>
+            <li>Sequential: O(k) + O(n-k) = O(n)</li>
+            <li>Each element is added and removed from window exactly <strong>once</strong></li>
+          </ul>
+          <p><strong>Why not O(n·k)?</strong> A naive approach would recompute the sum from scratch for each window (a nested loop) → O(n·k). Sliding window avoids this by just adding one element and removing one → O(1) per slide → O(n) total.</p>
+          <p><strong>Trick:</strong> Sliding window converts O(n·k) naive → O(n) by reusing previous computation.</p>
+          <div class="answer-box">Answer: O(n)</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ════════════════════ PROBLEM 8 ════════════════════ -->
+  <div class="prob" id="p8">
+    <div class="prob-header">
+      <div class="prob-num">Q 08</div>
+      <div>
+        <div class="prob-title">Loop with inner loop shrinking by half each outer iteration</div>
+        <div class="prob-tags">
+          <span class="tag tag-array">array</span>
+          <span class="tag tag-loop">loop</span>
+          <span class="tag tag-math">shrinking window</span>
+        </div>
+      </div>
+    </div>
+    <div class="prob-body">
+      <div class="code-block"><pre><span class="kw">void</span> <span class="fn">mystery</span>(<span class="kw">int</span>[] arr) {
+    <span class="kw">int</span> n = arr.length;
+    <span class="kw">for</span> (<span class="kw">int</span> i = <span class="nm">1</span>; i &lt; n; i++) {          <span class="cm">// outer: n times</span>
+        <span class="kw">for</span> (<span class="kw">int</span> j = <span class="nm">0</span>; j &lt; n; j += i) {   <span class="cm">// inner: n/i times</span>
+            System.out.print(arr[j] + <span class="str">" "</span>);
+        }
+        System.out.println();
+    }
+}</pre></div>
+      <div class="q-label">What is the time complexity?</div>
+      <div class="options" data-correct="C" data-pid="8">
+        <div class="opt" data-val="A"><span class="opt-key">A</span>O(n²)</div>
+        <div class="opt" data-val="B"><span class="opt-key">B</span>O(n)</div>
+        <div class="opt" data-val="C"><span class="opt-key">C</span>O(n log n)</div>
+        <div class="opt" data-val="D"><span class="opt-key">D</span>O(n√n)</div>
+      </div>
+      <div class="expl">
+        <div class="expl-head"></div>
+        <div class="expl-body">
+          <p>The inner loop step is <code>j += i</code>, so it runs <code>n/i</code> times for each outer value of i.</p>
+          <ul class="step-list">
+            <li>i=1: inner runs n/1 = n times</li>
+            <li>i=2: inner runs n/2 times</li>
+            <li>i=3: inner runs n/3 times</li>
+            <li>Total = n/1 + n/2 + n/3 + ... + n/n = n × (1 + 1/2 + 1/3 + ... + 1/n)</li>
+            <li>The harmonic series: (1 + 1/2 + ... + 1/n) ≈ <strong>ln(n)</strong> ≈ log n</li>
+            <li>Total = <strong>n × log n = O(n log n)</strong></li>
+          </ul>
+          <p><strong>This is the Harmonic Series pattern!</strong> Whenever inner loop runs n/i iterations summed over i=1..n, the total is O(n log n). This appears in the Sieve of Eratosthenes too.</p>
+          <div class="answer-box">Answer: O(n log n)</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ════════════════════ PROBLEM 9 ════════════════════ -->
+  <div class="prob" id="p9">
+    <div class="prob-header">
+      <div class="prob-num">Q 09</div>
+      <div>
+        <div class="prob-title">Merge two sorted arrays then binary search</div>
+        <div class="prob-tags">
+          <span class="tag tag-array">array</span>
+          <span class="tag tag-loop">loop</span>
+          <span class="tag tag-math">merge + search</span>
+        </div>
+      </div>
+    </div>
+    <div class="prob-body">
+      <div class="code-block"><pre><span class="kw">boolean</span> <span class="fn">mergeAndSearch</span>(<span class="kw">int</span>[] a, <span class="kw">int</span>[] b, <span class="kw">int</span> target) {
+    <span class="cm">// a.length = n,  b.length = m</span>
+    <span class="kw">int</span>[] merged = <span class="kw">new int</span>[a.length + b.length]; <span class="cm">// size n+m</span>
+    <span class="kw">int</span> i = <span class="nm">0</span>, j = <span class="nm">0</span>, k = <span class="nm">0</span>;
+
+    <span class="kw">while</span> (i &lt; a.length &amp;&amp; j &lt; b.length) {  <span class="cm">// merge: O(n+m)</span>
+        <span class="kw">if</span> (a[i] &lt;= b[j]) merged[k++] = a[i++];
+        <span class="kw">else</span>              merged[k++] = b[j++];
+    }
+    <span class="kw">while</span> (i &lt; a.length) merged[k++] = a[i++];
+    <span class="kw">while</span> (j &lt; b.length) merged[k++] = b[j++];
+
+    <span class="kw">int</span> lo = <span class="nm">0</span>, hi = merged.length - <span class="nm">1</span>;  <span class="cm">// binary search: O(log(n+m))</span>
+    <span class="kw">while</span> (lo &lt;= hi) {
+        <span class="kw">int</span> mid = (lo + hi) / <span class="nm">2</span>;
+        <span class="kw">if</span> (merged[mid] == target) <span class="kw">return true</span>;
+        <span class="kw">if</span> (merged[mid] &lt; target)  lo = mid + <span class="nm">1</span>;
+        <span class="kw">else</span>                       hi = mid - <span class="nm">1</span>;
+    }
+    <span class="kw">return false</span>;
+}</pre></div>
+      <div class="q-label">What is the TOTAL time complexity?</div>
+      <div class="options" data-correct="B" data-pid="9">
+        <div class="opt" data-val="A"><span class="opt-key">A</span>O(log(n + m))</div>
+        <div class="opt" data-val="B"><span class="opt-key">B</span>O(n + m)</div>
+        <div class="opt" data-val="C"><span class="opt-key">C</span>O((n + m) log(n + m))</div>
+        <div class="opt" data-val="D"><span class="opt-key">D</span>O(n · m)</div>
+      </div>
+      <div class="expl">
+        <div class="expl-head"></div>
+        <div class="expl-body">
+          <p>Two sequential phases — add their complexities, then keep the dominant term.</p>
+          <ul class="step-list">
+            <li>Merge phase: each element from a and b is touched once → <strong>O(n + m)</strong></li>
+            <li>Binary search on merged array of size (n+m): <strong>O(log(n+m))</strong></li>
+            <li>Total: O(n+m) + O(log(n+m))</li>
+            <li>Which dominates? O(n+m) grows much faster than O(log(n+m))</li>
+            <li>Keep dominant term: <strong>O(n + m)</strong></li>
+          </ul>
+          <p><strong>Key insight:</strong> The merge step dominates the binary search step. Even though binary search sounds "complex," it's actually very fast — the linear merge is the bottleneck.</p>
+          <div class="answer-box">Answer: O(n + m)</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ════════════════════ PROBLEM 10 ════════════════════ -->
+  <div class="prob" id="p10">
+    <div class="prob-header">
+      <div class="prob-num">Q 10</div>
+      <div>
+        <div class="prob-title">Recursive array processing — divide in thirds</div>
+        <div class="prob-tags">
+          <span class="tag tag-array">array</span>
+          <span class="tag tag-recur">recursion</span>
+          <span class="tag tag-loop">loop</span>
+        </div>
+      </div>
+    </div>
+    <div class="prob-body">
+      <div class="code-block"><pre><span class="kw">void</span> <span class="fn">solve</span>(<span class="kw">int</span>[] arr, <span class="kw">int</span> lo, <span class="kw">int</span> hi) {
+    <span class="kw">if</span> (hi - lo &lt; <span class="nm">1</span>) <span class="kw">return</span>;          <span class="cm">// base case</span>
+
+    <span class="kw">int</span> third = (hi - lo) / <span class="nm">3</span>;
+
+    <span class="cm">// Do O(n) work at this level</span>
+    <span class="kw">for</span> (<span class="kw">int</span> i = lo; i &lt;= hi; i++)
+        arr[i] = arr[i] * <span class="nm">2</span>;
+
+    <span class="cm">// Recurse on TWO thirds</span>
+    <span class="fn">solve</span>(arr, lo,          lo + third);
+    <span class="fn">solve</span>(arr, lo + third,  lo + <span class="nm">2</span>*third);
+}</pre></div>
+      <div class="q-label">What is the time complexity?</div>
+      <div class="options" data-correct="D" data-pid="10">
+        <div class="opt" data-val="A"><span class="opt-key">A</span>O(n²)</div>
+        <div class="opt" data-val="B"><span class="opt-key">B</span>O(n log₃ n)</div>
+        <div class="opt" data-val="C"><span class="opt-key">C</span>O(n)</div>
+        <div class="opt" data-val="D"><span class="opt-key">D</span>O(n log n)</div>
+      </div>
+      <div class="expl">
+        <div class="expl-head"></div>
+        <div class="expl-body">
+          <p>Apply the <strong>Master Theorem</strong>: T(n) = 2·T(n/3) + O(n).</p>
+          <ul class="step-list">
+            <li>Problem splits into <strong>2 sub-problems</strong> each of size <strong>n/3</strong></li>
+            <li>Work done at each level: O(n) (the for loop)</li>
+            <li>Number of recursion levels: log₃(n)</li>
+            <li>Total work per level: varies, but dominated by top level = O(n)</li>
+            <li>Master Theorem case: a=2, b=3, d=1. Since log₃(2) &lt; 1: <strong>O(n log n)</strong> applies… wait</li>
+            <li>More precisely: nlog₃2 ≈ n^0.63 &lt; n¹, so work dominated by leaves? No — the O(n) work per level dominates → each level does O(n) total → log₃n levels → <strong>O(n log n)</strong></li>
+          </ul>
+          <p><strong>Intuition:</strong> Each recursion level processes all n elements (across different sub-calls). There are log₃(n) levels. So total = n × log₃(n). Since log₃(n) = log(n)/log(3), and log(3) is a constant, this is simply <strong>O(n log n)</strong>.</p>
+          <p><strong>Trick:</strong> Whenever a recursion does O(n) work per level and has O(log n) levels (regardless of base 2, 3, etc.) → total is <strong>O(n log n)</strong>.</p>
+          <div class="answer-box">Answer: O(n log n)</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ════ SUMMARY ════ -->
+  <div class="summary" id="summary">
+    <div class="summary-emoji" id="summaryEmoji">🏆</div>
+    <div class="summary-title" id="summaryTitle">All done!</div>
+    <div class="summary-sub">Here's how you performed</div>
+    <div class="score-display" id="finalScore">0/10</div>
+    <div class="score-label">correct answers</div>
+    <div class="grade-bar" id="gradeBar"></div>
+    <button class="retry-btn" onclick="resetAll()">↺ &nbsp;Reset & Try Again</button>
+  </div>
+
+</div><!-- end .page -->
+
+<script>
+// ── STATE ──
+let answered = 0;
+let correct = 0;
+const total = 10;
+
+// ── SETUP OPTIONS ──
+document.querySelectorAll('.options').forEach(optGroup => {
+  const correctVal = optGroup.dataset.correct;
+  const probEl = optGroup.closest('.prob');
+  const expl = probEl.querySelector('.expl');
+  const opts = [...optGroup.querySelectorAll('.opt')];
+
+  opts.forEach(opt => {
+    opt.addEventListener('click', function () {
+      // Already answered? Ignore.
+      if (probEl.classList.contains('answered')) return;
+
+      probEl.classList.add('answered');
+      answered++;
+
+      const chosen = this.dataset.val;
+      const isRight = chosen === correctVal;
+      if (isRight) correct++;
+
+      opts.forEach(o => {
+        o.classList.add('locked');
+        if (o.dataset.val === correctVal) {
+          o.classList.add('correct');
+        } else if (o.dataset.val === chosen && !isRight) {
+          o.classList.add('wrong');
+        } else {
+          o.classList.add('dim');
+        }
+      });
+
+      expl.classList.add('show', isRight ? 'ok' : 'no');
+      expl.querySelector('.expl-head').textContent =
+        isRight ? '✅ Correct!' : '❌ Wrong — here\'s the full explanation:';
+
+      updateScore();
+      if (answered === total) showSummary();
+    });
+  });
+});
+
+function updateScore() {
+  document.getElementById('scoreDisplay').textContent = `${correct} / ${total}`;
+  document.getElementById('progressFill').style.width = `${(answered / total) * 100}%`;
+}
+
+function showSummary() {
+  const s = document.getElementById('summary');
+  s.classList.add('show');
+  s.scrollIntoView({ behavior: 'smooth', block: 'start' });
+
+  const pct = correct / total;
+  let emoji, title, pills;
+
+  if (pct === 1)       { emoji='🏆'; title='Perfect Score!'; pills=[{t:'Expert',c:'#00e5a0'}]; }
+  else if (pct >= 0.8) { emoji='🎯'; title='Excellent Work!'; pills=[{t:'Advanced',c:'#7c6aff'}]; }
+  else if (pct >= 0.6) { emoji='💡'; title='Good Understanding!'; pills=[{t:'Intermediate',c:'#4ab4ff'}]; }
+  else if (pct >= 0.4) { emoji='📚'; title='Keep Practicing!'; pills=[{t:'Beginner',c:'#ffd44d'}]; }
+  else                 { emoji='🔁'; title='Review the concepts!'; pills=[{t:'Needs Work',c:'#ff4466'}]; }
+
+  document.getElementById('summaryEmoji').textContent = emoji;
+  document.getElementById('summaryTitle').textContent = title;
+  document.getElementById('finalScore').textContent = `${correct}/${total}`;
+  document.getElementById('gradeBar').innerHTML = pills.map(p =>
+    `<div class="grade-pill" style="background:${p.c}22;border:1px solid ${p.c}55;color:${p.c}">${p.t}</div>`
+  ).join('');
+}
+
+function resetAll() {
+  answered = 0; correct = 0;
+  updateScore();
+
+  document.querySelectorAll('.prob').forEach(p => {
+    p.classList.remove('answered','all-correct');
+    p.querySelectorAll('.opt').forEach(o => {
+      o.classList.remove('locked','correct','wrong','dim');
+    });
+    p.querySelectorAll('.expl').forEach(e => {
+      e.classList.remove('show','ok','no');
+      e.querySelector('.expl-head').textContent = '';
+    });
+  });
+
+  document.getElementById('summary').classList.remove('show');
+  document.getElementById('progressFill').style.width = '0%';
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+</script>
+</body>
+</html>
